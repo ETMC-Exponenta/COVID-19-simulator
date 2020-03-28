@@ -1,16 +1,12 @@
-clear
-
-ts = 0.1;   %Sample time for logging
-
 N1 = 10;    % Number of points in X
 N2 = 5;     % Number of points in Y
 
 L = 2;      % Length of the box in X
 W = 1;      % Length of the box in Y
 
-R = 0.02;   % Radius of the balls
-maxSpacingRatio = 2; % How many raduis by which initial posisiton can vary
-Vmax = 0.3; % Maximum iniital velocity of balls
+R = 0.05;   % Radius of the balls
+maxSpacingRatio = 0.3; % How many raduis by which initial posisiton can vary
+Vmax = 0.3; % Maximum initial velocity of balls
 
 
 serverTime = 22; % Time to heal
