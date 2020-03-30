@@ -1,3 +1,3 @@
-a = populationAnimator(out, R);
+a = propagationAnimator(out, R);
 a.init();
 a.play();

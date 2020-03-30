@@ -1,40 +1,43 @@
 N1 = 10;    % Number of points in X
-N2 = 5;     % Number of points in Y
+N2 = 10;     % Number of points in Y
 
 L = 2;      % Length of the box in X
 W = 1;      % Length of the box in Y
 
-R = 0.05;   % Radius of the balls
+infectedIdx = 1;
+immobRatio = 0.5;
+
+R = 0.025;   % Radius of the balls
 maxSpacingRatio = 0.3; % How many raduis by which initial posisiton can vary
-Vmax = 0.3; % Maximum initial velocity of balls
+Vmax = 0.2; % Maximum initial velocity of balls
 
-
-serverTime = 22; % Time to heal
+healTime = 22; % Time to heal
 
 N = N1*N2;
-X = linspace(-L/2,L/2,N1);
-Y = linspace(-W/2,W/2,N2);
+X = linspace(-L/2+R, L/2-R, N1);
+Y = linspace(-W/2+R, W/2-R, N2);
+x0 = 0.9*X' + maxSpacingRatio*R*getRand(N1,1);
+y0 = 0.9*Y' + maxSpacingRatio*R*getRand(N2,1);
 
+pos0 = [reshape(repmat(X, N2, 1), [], 1) repmat(Y', N1, 1)];
+v0 = Vmax * getRand(N,2);
 
-clear x0 v0
-cnt = 0;
-for i = 1:N1
-    for j = 1:N2
-        cnt = cnt+1;
-        x0(cnt,:) = [ 0.9*X(i)+maxSpacingRatio*R*getRand 0.9*Y(j)+maxSpacingRatio*R*getRand];
-        v0(cnt,:) = [getRand*Vmax getRand*Vmax ]; %#ok<SAGROW>
-    end
+state0 = zeros(N,1);
+state0(infectedIdx) = 1;
+
+immobilized = get_immobilized(immobRatio, N, infectedIdx);
+v0(immobilized, :) = 0;
+
+function y = getRand(varargin)
+% Generate a random number between -1 and 1
+y = 2 * (rand(varargin{:}) - 0.5);
 end
 
-% %For debugging
-% x0 = [linspace(-0.8, 0.8, N)' zeros(N,1)]
-
-stateVector = Simulink.Signal;
-stateVector.Dimensions = N;
-stateVector.DataType = 'double'; 
-stateVector.Complexity = 'real';
-
-state0id = 5;
-% patient0 = randi(N)
-state0 = zeros(N,1);
-state0(state0id) = 1;
+function immobilized = get_immobilized(immobRatio, N, infectedIdx)
+immobNum = round(immobRatio * N);
+notInfectedIdx = setdiff(1:N, infectedIdx);
+randI = randperm(length(notInfectedIdx));
+notInfectedIdx = notInfectedIdx(randI(1:immobNum));
+immobilized = false(N, 1);
+immobilized(notInfectedIdx) = true;
+end
