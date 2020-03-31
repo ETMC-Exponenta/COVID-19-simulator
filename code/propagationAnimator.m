@@ -17,6 +17,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
         Iter = 0
         StatusStems
         StatusStemsData
+        ForceNewWindow
         Colors = struct('Recovered', [0.00,0.45,0.74],...
             'Sick', [0.85,0.33,0.10], 'Healthy', [0.39,0.83,0.07])
     end
@@ -29,9 +30,10 @@ classdef propagationAnimator < matlab.mixin.SetGet
                 task {mustBeMember(task, {'silent','init','play','plot'})} = 'play'
                 opts.Figure = []
                 opts.Ts {mustBeNumeric,mustBePositive} = 0.1
-                opts.Speed {mustBeMember(opts.Speed, {'','slow','normal','fast'})} = ''
+                opts.ForceNewWindow logical = false
             end
             obj.Figure = opts.Figure;
+            obj.ForceNewWindow = opts.ForceNewWindow;
             obj.processData(data);
             obj.Ts = opts.Ts;
             switch task
@@ -50,6 +52,9 @@ classdef propagationAnimator < matlab.mixin.SetGet
             t = obj.Data.Time;
             if ~obj.isfigure()
                 obj.Figure = figure('Color', 'white', 'Name', 'Propagation Animator');
+                if obj.ForceNewWindow
+                    obj.Figure.Visible = 'on';
+                end
             end
             obj.Tiled = tiledlayout(obj.Figure, 'flow', 'TileSpacing', 'compact');
             ax = nexttile(obj.Tiled);
@@ -111,9 +116,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
         end
         
         function play(obj)
-            if ~obj.isfigure() || obj.Iter >= height(obj.Data)
-                obj.init();
-            end
+            obj.init();
             for i = 1 : height(obj.Data)-1
                 obj.step();
             end
