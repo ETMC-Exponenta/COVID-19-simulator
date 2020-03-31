@@ -3,12 +3,10 @@ classdef propagationAnimator < matlab.mixin.SetGet
     %   Detailed explanation goes here
     
     properties
-        Out
         Data
         Status0
         Ts = 0.1
-        FPS = 40
-        Radius
+        Parameters
         Figure
         Axes
         VLine
@@ -25,14 +23,18 @@ classdef propagationAnimator < matlab.mixin.SetGet
     end
     
     methods
-        function obj = propagationAnimator(out, task)
+        function obj = propagationAnimator(data, task, opts)
             %POPULATIONANIMATOR Construct an instance of this class
             arguments
-                out
+                data
                 task {mustBeMember(task, {'silent','init','play','plot'})} = 'play'
+                opts.Figure = []
+                opts.Ts {mustBeNumeric,mustBePositive} = 0.1
+                opts.Speed {mustBeMember(opts.Speed, {'','slow','normal','fast'})} = ''
             end
-            obj.Out = out;
-            obj.processData();
+            obj.Figure = opts.Figure;
+%             obj.Ts = opts.Ts;
+            obj.processData(data);
             switch task
                 case 'init'
                     obj.init();
@@ -53,9 +55,11 @@ classdef propagationAnimator < matlab.mixin.SetGet
             obj.Tiled = tiledlayout(obj.Figure, 'flow', 'TileSpacing', 'compact');
             ax = nexttile(obj.Tiled);
             obj.Title = title(ax, 'Time = ');
-            ax.XLim = [-1 1]*1.1;
-            ax.YLim = [-1 1]*0.55;
-            rectangle(ax,'Position',[-1 -0.5 2 1], 'Tag', 'IMPORTANT')
+            L = obj.Parameters.L;
+            W = obj.Parameters.W;
+            ax.XLim = [-L/2 L/2];
+            ax.YLim = [-W/2 W/2];
+            rectangle(ax,'Position',[-L/2 -W/2 L W], 'Tag', 'IMPORTANT')
             axis(ax, 'off');
             axis(ax, 'equal');
             axis(ax, 'manual');
@@ -63,16 +67,16 @@ classdef propagationAnimator < matlab.mixin.SetGet
             ax.YColor = 'white';
             obj.Axes(1) = handle(ax);
             mp = nexttile(obj.Tiled);
-            mp.XColor = 'white';
-            mp.YColor = 'white';
+            axis(mp, 'off');
             obj.Axes(2) = mp;
             ch = get(obj.Axes, 'Children');
-            todel = [ch{string(get([ch{1:end-1}], 'Tag')) ~= "IMPORTANT"}];
+            ch = ch(cellfun(@(x) endsWith(class(x), "Rectangle"), ch));
+            todel = [ch{string(get([ch{:}], 'Tag')) ~= "IMPORTANT"}];
             if todel
                 delete(todel)
             end
-            N = size(obj.Data.Status, 2);
-            R = obj.Radius;
+            N = obj.Parameters.N;
+            R = obj.Parameters.R;
             ax = obj.Axes(1);
             for i = 1:N
                 hr(i) = rectangle('Parent', ax, 'Position', [-R -R R R]/2,...
@@ -115,16 +119,6 @@ classdef propagationAnimator < matlab.mixin.SetGet
             for i = 1 : height(obj.Data)-1
                 obj.step();
             end
-            %             obj.Tasker = Async();
-            %             obj.Tasker.addRepeatedTask(@(~)obj.step,...
-            %                 1/obj.FPS, height(obj.Data)-1, 1);
-            %             statuses = obj.Data.Status;
-            %             nPoints = size(statuses, 1);
-            %             obj.Tasker.start();
-        end
-        
-        function stop(obj)
-            obj.Tasker.stop();
         end
         
         function step(obj)
@@ -135,7 +129,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
             statuses = obj.Data.Status;
             t = obj.Data.Time;
             hr = obj.Points;
-            R = obj.Radius;
+            R = obj.Parameters.R;
             if obj.isfigure()
                 obj.Title.String = sprintf("Time = %3.2f", days(t(kk)));
                 for i = 1:length(hr)
@@ -171,9 +165,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
         end
         
         function plot(obj)
-            if ~obj.isfigure()
-                obj.init();
-            end
+            obj.init();
             obj.Iter = height(obj.Data) - 1;
             obj.step();
         end
@@ -183,20 +175,40 @@ classdef propagationAnimator < matlab.mixin.SetGet
             obj.processData();
         end
         
-        function processData(obj)
-            out = obj.Out;
-            allPos = out.yout.get('pos').Values.Data;
-            x = squeeze(allPos(:,1,:))';
-            y = squeeze(allPos(:,2,:))';
-            statuses = out.yout.get('status').Values.Data;
-            statuses = squeeze(statuses)';
-            t = out.yout.get('pos').Values.Time;
-            data = timetable(x, y, statuses, 'RowTimes', days(t),...
-                'VariableNames', {'X' 'Y' 'Status'});
+        function processData(obj, input)
+            switch class(input)
+                case "Simulink.SimulationOutput"
+                    out = input;
+                    allPos = out.yout.get('pos').Values.Data;
+                    x = squeeze(allPos(:,1,:))';
+                    y = squeeze(allPos(:,2,:))';
+                    statuses = out.yout.get('status').Values.Data;
+                    statuses = squeeze(statuses)';
+                    t = out.yout.get('pos').Values.Time;
+                    data = timetable(x, y, statuses, 'RowTimes', days(t),...
+                        'VariableNames', {'X' 'Y' 'Status'});
+                    p = out.yout.get('parameters').Values;
+                    parameters = struct('N', p.N.Data, 'L', p.L.Data,...
+                        'W', p.W.Data, 'R', p.R.Data);
+                case "struct"
+                    if isfield(input, 'data')
+                        data = input.data;
+                    else
+                        data = timetable(input.pos(:,1)', input.pos(:,2)', input.status',...
+                            'RowTimes', days(0), 'VariableNames', {'X' 'Y' 'Status'});
+                    end
+                    parameters = input.parameters;
+                otherwise
+                    error('Unsupported data format');
+            end
             data = retime(data, 'regular', 'nearest', 'TimeStep', days(obj.Ts));
             obj.Status0 = data.Status(:, 1)';
             obj.Data = data;
-            obj.Radius = out.yout.get('radius').Values.Data;
+            obj.Parameters = parameters;
+        end
+        
+        function data = getData(obj)
+            data = struct('data', obj.Data, 'parameters', obj.Parameters);
         end
         
         function yes = isfigure(obj)
