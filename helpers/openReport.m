@@ -1,1 +1,1 @@
-open analyzePropagation
+open propagationAnalysis

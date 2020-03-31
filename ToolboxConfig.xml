@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+   <name>Virus Propagation</name>
+   <pname>VirusPropagation.prj</pname>
+   <type>project</type>
+   <remote>https://github.com/ETMC-Exponenta/COVID-19-simulator</remote>
+   <extv>2.3.0</extv>
+</config>
+<!--Toolbox Extender configuration file. DO NOT DELETE-->

@@ -1,0 +1,1 @@
+dev.gendoc('pdf');
