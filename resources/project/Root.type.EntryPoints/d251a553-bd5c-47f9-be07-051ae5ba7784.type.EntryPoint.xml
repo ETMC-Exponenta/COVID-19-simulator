@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Info Type="StartUp" Visible="1" Icon="" File="helpers/openApp.m" Name="1. Propagation App">
+    <Extension Value="c64dcc6a-ea4a-46a8-b22f-724244fcba89" Name="StartUpPrev" />
+</Info>

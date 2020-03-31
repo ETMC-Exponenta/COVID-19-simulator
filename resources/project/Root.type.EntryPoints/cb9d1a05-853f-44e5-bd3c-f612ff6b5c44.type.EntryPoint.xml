@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Info Type="StartUp" Visible="0" Icon="" File="data/exampleData.mat" Name="exampleData">
+    <Extension Value="d251a553-bd5c-47f9-be07-051ae5ba7784" Name="StartUpPrev" />
+</Info>

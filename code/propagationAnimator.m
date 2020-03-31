@@ -3,8 +3,8 @@ classdef propagationAnimator < matlab.mixin.SetGet
     %   Detailed explanation goes here
     
     properties
+        DataRaw
         Data
-        Status0
         Ts = 0.1
         Parameters
         Figure
@@ -13,13 +13,12 @@ classdef propagationAnimator < matlab.mixin.SetGet
         Tiled
         Title
         Points
-        Stems
+        Areas
         Iter = 0
         StatusStems
         StatusStemsData
         Colors = struct('Recovered', [0.00,0.45,0.74],...
             'Sick', [0.85,0.33,0.10], 'Healthy', [0.39,0.83,0.07])
-        Tasker
     end
     
     methods
@@ -33,8 +32,8 @@ classdef propagationAnimator < matlab.mixin.SetGet
                 opts.Speed {mustBeMember(opts.Speed, {'','slow','normal','fast'})} = ''
             end
             obj.Figure = opts.Figure;
-%             obj.Ts = opts.Ts;
             obj.processData(data);
+            obj.Ts = opts.Ts;
             switch task
                 case 'init'
                     obj.init();
@@ -59,12 +58,11 @@ classdef propagationAnimator < matlab.mixin.SetGet
             W = obj.Parameters.W;
             ax.XLim = [-L/2 L/2];
             ax.YLim = [-W/2 W/2];
-            rectangle(ax,'Position',[-L/2 -W/2 L W], 'Tag', 'IMPORTANT')
+            rectangle(ax, 'Position', [-L/2 -W/2 L W], 'FaceColor', 'white',...
+                'Tag', 'IMPORTANT')
             axis(ax, 'off');
             axis(ax, 'equal');
             axis(ax, 'manual');
-            ax.XColor = 'white';
-            ax.YColor = 'white';
             obj.Axes(1) = handle(ax);
             mp = nexttile(obj.Tiled);
             axis(mp, 'off');
@@ -72,7 +70,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
             ch = get(obj.Axes, 'Children');
             ch = ch(cellfun(@(x) endsWith(class(x), "Rectangle"), ch));
             todel = [ch{string(get([ch{:}], 'Tag')) ~= "IMPORTANT"}];
-            if todel
+            if ~isempty(todel)
                 delete(todel)
             end
             N = obj.Parameters.N;
@@ -94,18 +92,18 @@ classdef propagationAnimator < matlab.mixin.SetGet
             %mp.XAxis.Limits = [0 t(end)];
             mp.YAxis.Limits = [0 N];
             hold(mp, 'on')
-            ss(1) = area(mp,t,obj.StatusStems(:,1),...
+            as(1) = area(mp,t,obj.StatusStems(:,1),...
                 'FaceColor', obj.Colors.Recovered, 'DisplayName', 'Recovered');
-            ss(2) = area(mp,t,obj.StatusStems(:,2),...
+            as(2) = area(mp,t,obj.StatusStems(:,2),...
                 'FaceColor', obj.Colors.Healthy, 'DisplayName', 'Healthy');
-            ss(3) = area(mp,t,obj.StatusStems(:,3),...
+            as(3) = area(mp,t,obj.StatusStems(:,3),...
                 'FaceColor', obj.Colors.Sick, 'DisplayName', 'Sick');
-            obj.Stems = ss;
+            obj.Areas = as;
             hold(mp, 'off');
             obj.VLine = xline(mp, 0, 'LineWidth', 2, 'Alpha', 0.4,...
                 'LabelOrientation', 'horizontal');
             obj.VLine.Annotation.LegendInformation.IconDisplayStyle = 'off';
-            legend(mp, ss([2 3 1]), 'Location', 'northoutside');
+            legend(mp, as([2 3 1]), 'Location', 'northoutside');
             if class(obj.Figure) == "matlab.ui.Figure"
                 obj.Figure.WindowState = 'maximized';
             end
@@ -153,9 +151,9 @@ classdef propagationAnimator < matlab.mixin.SetGet
                 obj.StatusStems(1:kk,1) = StatusLevel2Count+StatusLevel1Count+StatusLevel3Count;
                 obj.StatusStems(1:kk,2) = StatusLevel2Count+StatusLevel1Count;
                 obj.StatusStems(1:kk,3) = StatusLevel2Count;
-                obj.Stems(1).YData = obj.StatusStems(1:end, 1);
-                obj.Stems(2).YData = obj.StatusStems(1:end, 2);
-                obj.Stems(3).YData = obj.StatusStems(1:end, 3);
+                obj.Areas(1).YData = obj.StatusStems(1:end, 1);
+                obj.Areas(2).YData = obj.StatusStems(1:end, 2);
+                obj.Areas(3).YData = obj.StatusStems(1:end, 3);
                 obj.VLine.Value = t(kk);
                 obj.VLine.Label = sprintf("T=%3.2f\nH:%d\nS:%d\nR:%d", days(t(kk)),...
                     obj.StatusStemsData(kk,1), obj.StatusStemsData(kk,2),...
@@ -172,7 +170,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
         
         function set.Ts(obj, ts)
             obj.Ts = ts;
-            obj.processData();
+            obj.retimeData();
         end
         
         function processData(obj, input)
@@ -201,13 +199,25 @@ classdef propagationAnimator < matlab.mixin.SetGet
                 otherwise
                     error('Unsupported data format');
             end
-            data = retime(data, 'regular', 'nearest', 'TimeStep', days(obj.Ts));
-            obj.Status0 = data.Status(:, 1)';
+            obj.DataRaw = data;
             obj.Data = data;
             obj.Parameters = parameters;
         end
         
-        function data = getData(obj)
+        function data = retimeData(obj, ts)
+            %% Retime data
+            if nargin > 1
+                obj.Ts = ts;
+            end
+            data = retime(obj.DataRaw, 'regular', 'nearest', 'TimeStep', days(obj.Ts));
+            obj.Data = data;
+        end
+        
+        function data = getData(obj, ts)
+            %% Get processed data and parameters
+            if nargin > 1
+                obj.retimeData(ts);
+            end
             data = struct('data', obj.Data, 'parameters', obj.Parameters);
         end
         
