@@ -1,3 +1,3 @@
-a = propagationAnimator(out, R);
+a = propagationAnimator(out);
 a.init();
 a.play();
