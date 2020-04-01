@@ -103,7 +103,11 @@ classdef VirusPropagationDev < handle
             obj.tag();
             obj.ext.echo('has been deployed');
             if ~isempty(obj.ext.pname)
-                bpath = char(obj.ext.getbinpath);
+                if obj.ext.type == "project"
+                    bpath = char(exportproject());
+                else
+                    bpath = char(obj.ext.getbinpath);
+                end
                 if isfile(bpath)
                     clipboard('copy', ['"' char(obj.ext.getbinpath) '"'])
                     disp("Binary path was copied to clipboard")
@@ -240,6 +244,23 @@ classdef VirusPropagationDev < handle
             system(tagcmd);
             system('git push --tags');
             obj.ext.echo('has been tagged');
+        end
+        
+        function v = gettagv(~)
+            % Get version form tag
+            [~, v] = system('git describe --abbrev=0');
+            if contains(v, 'fatal')
+                v = '';
+            else
+                v = strtrim(v);
+                v = v(2 : end);
+            end
+        end
+        
+        function zipname = exportproject(obj)
+            p = currentProject;
+            zipname = erase(string(p.Name), ' ') + obj.gettagv();
+            p.export(char(zipname));
         end
         
         function url = shorturl(obj, url)

@@ -315,7 +315,8 @@ classdef VirusPropagationExtender < handle
                 case "app"
                     ext = ".mlappinstall";
                 otherwise
-                    error('Unsupported for %s\n', obj.type);
+                    warning('Unsupported for %s\n', obj.type);
+                    ext = "";
             end
             bname = name + ext;
             bpath = fullfile(obj.root, bname);
