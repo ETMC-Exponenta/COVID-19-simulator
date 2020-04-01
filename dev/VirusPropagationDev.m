@@ -65,6 +65,7 @@ classdef VirusPropagationDev < handle
                 obj.updateroot();
                 obj.seticons();
                 matlab.addons.toolbox.packageToolbox(ppath, bname);
+            elseif obj.ext.type == "project"
             else
                 matlab.apputil.package(ppath);
                 %movefile(fullfile(obj.ext.root, obj.ext.name + ".mlappinstall"), bpath + ".mlappinstall",'f');
