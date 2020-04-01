@@ -16,3 +16,7 @@
 ## Пробная версия MATLAB
 
 Если у вас нет доступа к лицензии MATLAB R2020a, вы можете оперативно [получить пробную версию](https://exponenta.ru/news/better-at-home-nl).
+
+## Обсуждение
+
+Обсуждаем проект в комментариях к [статье](https://hub.exponenta.ru/post/modeliruem-rasprostranenie-koronavirusnoy-infektsii-covid-19-v-simulink215)
