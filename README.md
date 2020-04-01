@@ -1,6 +1,10 @@
-# Моделирование распространения вирусной инфекции COVID-19
+# Моделирование распространения вирусной инфекции COVID-19 (Simulation of COVID-19 Propagation)
 
 ![](./doc/img1.png)
+
+[Русский](#Описание-ru) | [English](#description-gb)
+
+## Описание :ru:
 
 Модель позволяет качественно оценить влияние перемещения людей а также карантина на распространение коронавирусной инфекции.
 
@@ -11,7 +15,7 @@
 * MATLAB R2020a
 * Simulink
 * Stateflow
-* (Рекомендуется) Simulink Coder
+* Simulink Coder (не обязательно)
 
 ## Пробная версия MATLAB
 
@@ -20,3 +24,17 @@
 ## Обсуждение
 
 Обсуждаем проект в комментариях к [статье](https://hub.exponenta.ru/post/modeliruem-rasprostranenie-koronavirusnoy-infektsii-covid-19-v-simulink215)
+
+## Description :gb:
+
+The model allows a qualitative assessment of the effect of people movement and also quarantine on the spread of coronavirus infection.
+
+The dynamics of the movement of people and the spread of infection was done in Simulink, the processing of results and visualization were done in MATLAB.
+
+## Requirements
+
+* MATLAB R2020a
+* Simulink
+* Stateflow
+* Simulink Coder (optional)
+
