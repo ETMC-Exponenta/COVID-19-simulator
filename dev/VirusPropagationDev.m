@@ -104,7 +104,7 @@ classdef VirusPropagationDev < handle
             obj.ext.echo('has been deployed');
             if ~isempty(obj.ext.pname)
                 if obj.ext.type == "project"
-                    bpath = char(exportproject());
+                    bpath = char(obj.exportproject());
                 else
                     bpath = char(obj.ext.getbinpath);
                 end
