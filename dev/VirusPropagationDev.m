@@ -103,8 +103,11 @@ classdef VirusPropagationDev < handle
             obj.tag();
             obj.ext.echo('has been deployed');
             if ~isempty(obj.ext.pname)
-                clipboard('copy', ['"' char(obj.ext.getbinpath) '"'])
-                disp("Binary path was copied to clipboard")
+                bpath = char(obj.ext.getbinpath);
+                if isfile(bpath)
+                    clipboard('copy', ['"' char(obj.ext.getbinpath) '"'])
+                    disp("Binary path was copied to clipboard")
+                end
             end
             disp("* Now create release on GitHub *");
             chapters = ["Summary" "Upgrade Steps" "Breaking Changes"...
