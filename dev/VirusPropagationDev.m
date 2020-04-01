@@ -259,7 +259,10 @@ classdef VirusPropagationDev < handle
         
         function zipname = exportproject(obj)
             p = currentProject;
-            zipname = erase(string(p.Name), ' ') + obj.gettagv();
+            zipname = erase(string(p.Name), ' ') + obj.gettagv() + ".mlproj";
+            if isfile(zipname)
+                delete(zipname);
+            end
             p.export(char(zipname));
         end
         
