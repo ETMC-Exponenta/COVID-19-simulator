@@ -89,6 +89,7 @@ classdef propagationAnimator < matlab.mixin.SetGet
             obj.Points = hr;
             nPoints = size(statuses, 1);
             mp = handle(obj.Axes(2));
+            obj.StatusStems = [];
             obj.StatusStems(:,1) = zeros(nPoints, 1);
             obj.StatusStems(:,2) = N * ones(nPoints, 1);
             obj.StatusStems(:,3) = zeros(nPoints, 1);
