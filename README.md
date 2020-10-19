@@ -6,20 +6,20 @@
 
 ## Описание :ru:
 
-Модель позволяет качественно оценить влияние перемещения людей а также карантина на распространение коронавирусной инфекции.
+Модель позволяет качественно оценить влияние перемещения людей а также карантина на распространение инфекций.
 
 Динамика перемещения людей и распространения инфекции выполнена в Simulink и Stateflow, обработка результатов и визуализация - в MATLAB.
 
 ## Требования
 
-* MATLAB R2020a
+* MATLAB R2020a/b
 * Simulink
 * Stateflow
 * Simulink Coder (не обязательно)
 
 ## Пробная версия MATLAB
 
-Если у вас нет доступа к лицензии MATLAB R2020a, вы можете оперативно [получить пробную версию](https://exponenta.ru/news/better-at-home-nl).
+Если у вас нет доступа к лицензии MATLAB, вы можете оперативно [получить пробную версию](https://exponenta.ru/news/better-at-home-nl).
 
 ## Обсуждение
 
@@ -27,13 +27,13 @@
 
 ## Description :gb:
 
-The model allows a qualitative assessment of the effect of people movement and also quarantine on the spread of coronavirus infection.
+The model allows a qualitative assessment of the effect of people movement and also quarantine on the spread of infections.
 
 The dynamics of the movement of people and the spread of infection was done in Simulink and Stateflow, the processing of results and visualization were done in MATLAB.
 
 ## Requirements
 
-* MATLAB R2020a
+* MATLAB R2020a/b
 * Simulink
 * Stateflow
 * Simulink Coder (optional)
